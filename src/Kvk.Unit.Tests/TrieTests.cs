@@ -60,6 +60,18 @@ namespace Kvk.Unit.Tests
 			Assert.That(result, Is.EqualTo(path));
 		}
 
+
+		[Test]
+		[TestCase("one","polyglot")]
+		[TestCase("two","polyhedron")]
+		public void Can_recover_a_key_path_by_its_value (object value, string expectedPath)
+		{
+			var result = subject.GetKeyByValue(value);
+
+			Assert.That(result, Is.EqualTo(expectedPath));
+		}
+
+
 		[Test]
 		[TestCase("poly",false)]
 		[TestCase("polyhedron", true)]
@@ -69,6 +81,13 @@ namespace Kvk.Unit.Tests
 		public void Can_find_if_a_key_path_exists_and_has_a_value (string path, bool expected)
 		{
 			Assert.That(subject.Contains(path), Is.EqualTo(expected));
+		}
+
+		[Test]
+		public void Given_a_string_can_find_all_values_that_match_any_substring ()
+		{
+			Assert.That(subject.AllSubstringValues("Oh, poly put the kettle on"), Is.Empty);
+			Assert.That(subject.AllSubstringValues("What about polyglot persistence?"), Is.EquivalentTo(new[]{"one"}));
 		}
     }
 }

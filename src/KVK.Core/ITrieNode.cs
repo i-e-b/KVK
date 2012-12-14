@@ -4,20 +4,16 @@ namespace KVK.Core
 {
 	public interface ITrieNode<T>
 	{
-		
 		T Value { get; set; } 
 
 		bool HasValue { get; }
 		bool IsLeaf { get; }
 
 		ITrieNode<T> this[char c] { get; }
-
 		ITrieNode<T>[] Nodes { get; }
 
 		void SetLeaf();
-
 		int ChildCount { get; }
-
 		bool ShouldOptimize { get; }
 
 		KeyValuePair<char, ITrieNode<T>>[] CharNodePairs();

@@ -24,5 +24,11 @@ namespace KVK.Core
 
 		/// <summary> Recover a key-path by its node, by searching. </summary>
 		string GetKey(ITrieNode<T> node);
+
+		/// <summary> Recover a key-path by its node, by searching. </summary>
+		string GetKeyByValue(T node);
+
+		/// <summary> find all values that match any substring </summary>
+		IEnumerable<T> AllSubstringValues(string s);
 	}
 }

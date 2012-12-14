@@ -42,9 +42,9 @@ namespace KVK.Core
 				if (Value != null)
 					yield return Value;
 				if (Nodes != null)
-					foreach (TrieNodeBase child in Nodes)
+					foreach (var child in Nodes)
 						if (child != null)
-							foreach (TValue t in child.SubsumedValues())
+							foreach (var t in child.SubsumedValues())
 								yield return t;
 			}
 
@@ -99,15 +99,6 @@ namespace KVK.Core
 
 		};
 
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		///
-		/// Sparse Trie Node
-		///
-		/// currently, this one's "nodes" value is never null, because we leave leaf nodes as the non-sparse type,
-		/// (with nodes==null) and they currently never get converted back. Consequently, IsLeaf should always be 'false'.
-		/// However, we're gonna do the check anyway.
-		/// 
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		public class SparseTrieNode : TrieNodeBase
 		{
 			Dictionary<Char, ITrieNode<TValue>> d;
@@ -164,11 +155,6 @@ namespace KVK.Core
 
 		};
 
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		///
-		/// Non-sparse Trie Node
-		///
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		public class TrieNode : TrieNodeBase
 		{
 			private ITrieNode<TValue>[] nodes;
@@ -255,12 +241,6 @@ namespace KVK.Core
 			public override bool IsLeaf { get { return nodes == null; } }
 		};
 
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// 
-		/// Trie proper begins here
-		///
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 		private ITrieNode<TValue> _root = new TrieNode();
 		public int c_nodes = 0;
 		public static int c_sparse_nodes = 0;
@@ -340,49 +320,40 @@ namespace KVK.Core
 			return fn(_root) ? sofar.ToString() : null;
 		}
 
-
 		/// <summary>
 		/// Debug only; this is hideously inefficient
 		/// </summary>
-		delegate bool GetKeyHelper(ITrieNode<TValue> cur);
-		public String GetKey(TValue seek)
+		public string GetKeyByValue(TValue seek)
 		{
-			String sofar = String.Empty;
+			var sofar = new StringBuilder();
 
 			GetKeyHelper fn = null;
 			fn = cur =>
 			{
-				char tmp = ' ';
 				foreach (var kvp in cur.CharNodePairs())
 				{
-					tmp = kvp.Key;
 					if (kvp.Value.Value != null && kvp.Value.Value.Equals(seek))
 					{
-						sofar += tmp;
+						sofar.Insert(0, kvp.Key);
 						return true;
 					}
 					if (kvp.Value.Nodes != null && fn(kvp.Value))
 					{
-						sofar += tmp;
+						sofar.Insert(0, kvp.Key);
 						return true;
 					}
 				}
-				sofar += tmp;
 				return false;
 			};
 
-			if (fn(_root))
-				return sofar;
-			return null;
+			return fn(_root) ? sofar.ToString() : null;
 		}
+		delegate bool GetKeyHelper(ITrieNode<TValue> cur);
 
 		public ITrieNode<TValue> FindNode(String s_in)
 		{
 			var node = _root;
-			foreach (var c in s_in)
-				if ((node = node[c]) == null)
-					return null;
-			return node;
+			return s_in.Any(c => (node = node[c]) == null) ? null : node;
 		}
 
 		/// <summary>
@@ -458,9 +429,7 @@ namespace KVK.Core
 		public IEnumerable<TValue> SubsumedValues(String s)
 		{
 			var node = FindNode(s);
-			if (node == null)
-				return Enumerable.Empty<TValue>();
-			return node.SubsumedValues();
+			return node == null ? Enumerable.Empty<TValue>() : node.SubsumedValues();
 		}
 
 		public IEnumerable<ITrieNode<TValue>> SubsumedNodes(String s)

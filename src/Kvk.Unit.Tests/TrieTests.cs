@@ -1,5 +1,4 @@
-﻿using System;
-using KVK.Core;
+﻿using KVK.Core;
 using NUnit.Framework;
 
 namespace Kvk.Unit.Tests
@@ -42,6 +41,34 @@ namespace Kvk.Unit.Tests
 		public void Can_find_all_node_values_in_a_string_path ()
 		{
 			Assert.That(subject.FindAll("polyglottal"), Is.EquivalentTo(new []{"one", "three"}));
+		}
+
+		[Test]
+		public void Can_read_out_all_stored_values_regardless_of_key ()
+		{
+			Assert.That(subject.Values, Is.EquivalentTo(new[]{"one","two","three"}));
+		}
+
+		[Test]
+		[TestCase("poly")]
+		[TestCase("polyglottal")]
+		public void Can_recover_a_key_path_by_its_node (string path)
+		{
+			var node = subject.FindNode(path);
+			var result = subject.GetKey(node);
+
+			Assert.That(result, Is.EqualTo(path));
+		}
+
+		[Test]
+		[TestCase("poly",false)]
+		[TestCase("polyhedron", true)]
+		[TestCase("polyglot", true)]
+		[TestCase("polyglott", false)]
+		[TestCase("different", false)]
+		public void Can_find_if_a_key_path_exists_and_has_a_value (string path, bool expected)
+		{
+			Assert.That(subject.Contains(path), Is.EqualTo(expected));
 		}
     }
 }

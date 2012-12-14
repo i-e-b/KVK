@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 // ReSharper disable CompareNonConstrainedGenericWithNull
 
@@ -314,35 +315,29 @@ namespace KVK.Core
 		/// <summary>
 		/// Debug only; this is hideously inefficient
 		/// </summary>
-		public String GetKey(ITrieNode<TValue> seek)
+		public string GetKey(ITrieNode<TValue> seek)
 		{
-			String sofar = String.Empty;
+			var sofar = new StringBuilder();
 
 			GetKeyHelper fn = null;
 			fn = cur =>
 			{
-				char tmp = ' ';
 				foreach (var kvp in cur.CharNodePairs())
 				{
-					tmp = kvp.Key;
 					if (kvp.Value == seek)
 					{
-						sofar += tmp;
+						sofar.Insert(0, kvp.Key);
 						return true;
 					}
-					if (kvp.Value.Nodes != null && fn(kvp.Value))
-					{
-						sofar += tmp;
-						return true;
-					}
+					if (kvp.Value.Nodes == null || !fn(kvp.Value)) continue;
+
+					sofar.Insert(0, kvp.Key);
+					return true;
 				}
-				sofar += tmp;
 				return false;
 			};
 
-			if (fn(_root))
-				return sofar;
-			return null;
+			return fn(_root) ? sofar.ToString() : null;
 		}
 
 

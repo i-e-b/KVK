@@ -64,3 +64,21 @@ Notes
 * For scaling, can list hosts rather than documents, then go to host for definitive answer.
 * Key-value existence checking v. easy.
 * All documents are 'joined' by key equality by default.
+
+Multi-keys
+----------
+
+It should be acceptable to define a key-path more than once per document. It then becomes 
+available by any of those keys:
+
+```
+x = {
+  Picture : "http://example.com/us.jpg",
+  Tags : {
+    Name : "John",
+	Name : "Sue",
+	Name : "Phil"
+  }
+}
+```
+* `"Tags.Name" --> ["John" : [x]]; ["Sue":[x]]; ["Phil":[x]]`

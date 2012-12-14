@@ -10,9 +10,9 @@ using System.Linq;
 
 namespace KVK.Core
 {
-	public class Trie<TValue> : IEnumerable<Trie<TValue>.TrieNodeBase>
+	public class Trie<TValue> : IEnumerable<ITrieNode<TValue>>, ITrie<TValue>
 	{
-		public abstract class TrieNodeBase
+		public abstract class TrieNodeBase:ITrieNode<TValue>
 		{
 			protected TValue m_value = default(TValue);
 
@@ -24,20 +24,13 @@ namespace KVK.Core
 
 			public bool HasValue { get { return !Equals(m_value, default(TValue)); } }
 			public abstract bool IsLeaf { get; }
-
-			public abstract TrieNodeBase this[char c] { get; }
-
-			public abstract TrieNodeBase[] Nodes { get; }
-
+			public abstract ITrieNode<TValue> this[char c] { get; }
+			public abstract ITrieNode<TValue>[] Nodes { get; }
 			public abstract void SetLeaf();
-
 			public abstract int ChildCount { get; }
-
 			public abstract bool ShouldOptimize { get; }
-
-			public abstract KeyValuePair<char, TrieNodeBase>[] CharNodePairs();
-
-			public abstract TrieNodeBase AddChild(char c, ref int node_count);
+			public abstract KeyValuePair<char, ITrieNode<TValue>>[] CharNodePairs();
+			public abstract ITrieNode<TValue> AddChild(char c, ref int node_count);
 
 			/// <summary>
 			/// Includes current node value
@@ -58,7 +51,7 @@ namespace KVK.Core
 			/// Includes current node
 			/// </summary>
 			/// <returns></returns>
-			public IEnumerable<TrieNodeBase> SubsumedNodes()
+			public IEnumerable<ITrieNode<TValue>> SubsumedNodes()
 			{
 				yield return this;
 				if (Nodes != null)
@@ -72,7 +65,7 @@ namespace KVK.Core
 			/// Doesn't include current node
 			/// </summary>
 			/// <returns></returns>
-			public IEnumerable<TrieNodeBase> SubsumedNodesExceptThis()
+			public IEnumerable<ITrieNode<TValue>> SubsumedNodesExceptThis()
 			{
 				if (Nodes != null)
 					foreach (TrieNodeBase child in Nodes)
@@ -89,11 +82,11 @@ namespace KVK.Core
 				if (Nodes != null)
 					foreach (var q in CharNodePairs())
 					{
-						TrieNodeBase n_old = q.Value;
+						var n_old = q.Value;
 						if (n_old.ShouldOptimize)
 						{
 							TrieNodeBase n_new = new SparseTrieNode(n_old.CharNodePairs());
-							n_new.m_value = n_old.m_value;
+							n_new.m_value = n_old.Value;
 							c_sparse_nodes++;
 							ReplaceChild(q.Key, n_new);
 						}
@@ -116,25 +109,25 @@ namespace KVK.Core
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		public class SparseTrieNode : TrieNodeBase
 		{
-			Dictionary<Char, TrieNodeBase> d;
+			Dictionary<Char, ITrieNode<TValue>> d;
 
-			public SparseTrieNode(IEnumerable<KeyValuePair<Char, TrieNodeBase>> ie)
+			public SparseTrieNode(IEnumerable<KeyValuePair<Char, ITrieNode<TValue>>> ie)
 			{
-				d = new Dictionary<char, TrieNodeBase>();
+				d = new Dictionary<char, ITrieNode<TValue>>();
 				foreach (var kvp in ie)
 					d.Add(kvp.Key, kvp.Value);
 			}
 
-			public override TrieNodeBase this[Char c]
+			public override ITrieNode<TValue> this[Char c]
 			{
 				get
 				{
-					TrieNodeBase node;
+					ITrieNode<TValue> node;
 					return d.TryGetValue(c, out node) ? node : null;
 				}
 			}
 
-			public override TrieNodeBase[] Nodes { get { return d.Values.ToArray(); } }
+			public override ITrieNode<TValue>[] Nodes { get { return d.Values.ToArray(); } }
 
 			/// <summary>
 			/// do not use in current form. This means, run OptimizeSparseNodes *after* any pruning
@@ -143,14 +136,14 @@ namespace KVK.Core
 
 			public override int ChildCount { get { return d.Count; } }
 
-			public override KeyValuePair<Char, TrieNodeBase>[] CharNodePairs()
+			public override KeyValuePair<Char, ITrieNode<TValue>>[] CharNodePairs()
 			{
 				return d.ToArray();
 			}
 
-			public override TrieNodeBase AddChild(char c, ref int node_count)
+			public override ITrieNode<TValue> AddChild(char c, ref int node_count)
 			{
-				TrieNodeBase node;
+				ITrieNode<TValue> node;
 				if (!d.TryGetValue(c, out node))
 				{
 					node = new TrieNode();
@@ -177,31 +170,31 @@ namespace KVK.Core
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		public class TrieNode : TrieNodeBase
 		{
-			private TrieNodeBase[] nodes;
+			private ITrieNode<TValue>[] nodes;
 			private Char m_base;
 
 			public override int ChildCount { get { return (nodes != null) ? nodes.Count(e => e != null) : 0; } }
 			public int AllocatedChildCount { get { return (nodes != null) ? nodes.Length : 0; } }
 
-			public override TrieNodeBase[] Nodes { get { return nodes; } }
+			public override ITrieNode<TValue>[] Nodes { get { return nodes; } }
 
 			public override void SetLeaf() { nodes = null; }
 
-			public override KeyValuePair<Char, TrieNodeBase>[] CharNodePairs()
+			public override KeyValuePair<Char, ITrieNode<TValue>>[] CharNodePairs()
 			{
-				var rg = new KeyValuePair<char, TrieNodeBase>[ChildCount];
+				var rg = new KeyValuePair<char, ITrieNode<TValue>>[ChildCount];
 				Char ch = m_base;
 				int i = 0;
 				foreach (TrieNodeBase child in nodes)
 				{
 					if (child != null)
-						rg[i++] = new KeyValuePair<char, TrieNodeBase>(ch, child);
+						rg[i++] = new KeyValuePair<char, ITrieNode<TValue>>(ch, child);
 					ch++;
 				}
 				return rg;
 			}
 
-			public override TrieNodeBase this[char c]
+			public override ITrieNode<TValue> this[char c]
 			{
 				get
 				{
@@ -211,12 +204,12 @@ namespace KVK.Core
 				}
 			}
 
-			public override TrieNodeBase AddChild(char c, ref int node_count)
+			public override ITrieNode<TValue> AddChild(char c, ref int node_count)
 			{
 				if (nodes == null)
 				{
 					m_base = c;
-					nodes = new TrieNodeBase[1];
+					nodes = new ITrieNode<TValue>[1];
 				}
 				else if (c >= m_base + nodes.Length)
 				{
@@ -225,13 +218,13 @@ namespace KVK.Core
 				else if (c < m_base)
 				{
 					var c_new = (Char)(m_base - c);
-					var tmp = new TrieNodeBase[nodes.Length + c_new];
+					var tmp = new ITrieNode<TValue>[nodes.Length + c_new];
 					nodes.CopyTo(tmp, c_new);
 					m_base = c;
 					nodes = tmp;
 				}
 
-				TrieNodeBase node = nodes[c - m_base];
+				var node = nodes[c - m_base];
 				if (node == null)
 				{
 					node = new TrieNode();
@@ -267,7 +260,7 @@ namespace KVK.Core
 		///
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		private TrieNodeBase _root = new TrieNode();
+		private ITrieNode<TValue> _root = new TrieNode();
 		public int c_nodes = 0;
 		public static int c_sparse_nodes = 0;
 
@@ -277,7 +270,7 @@ namespace KVK.Core
 			return _root.SubsumedNodes().GetEnumerator();
 		}
 
-		IEnumerator<TrieNodeBase> IEnumerable<TrieNodeBase>.GetEnumerator()
+		IEnumerator<ITrieNode<TValue>> IEnumerable<ITrieNode<TValue>>.GetEnumerator()
 		{
 			return _root.SubsumedNodes().GetEnumerator();
 		}
@@ -294,11 +287,11 @@ namespace KVK.Core
 			_root.OptimizeChildNodes();
 		}
 
-		public TrieNodeBase Root { get { return _root; } }
+		public ITrieNode<TValue> Root { get { return _root; } }
 
-		public TrieNodeBase Add(String s, TValue v)
+		public ITrieNode<TValue> Add(string s, TValue v)
 		{
-			TrieNodeBase node = _root;
+			var node = _root;
 			foreach (Char c in s)
 				node = node.AddChild(c,ref c_nodes);
 
@@ -308,8 +301,8 @@ namespace KVK.Core
 
 		public bool Contains(String s)
 		{
-			TrieNodeBase node = _root;
-			foreach (Char c in s)
+			var node = _root;
+			foreach (var c in s)
 			{
 				node = node[c];
 				if (node == null)
@@ -321,7 +314,7 @@ namespace KVK.Core
 		/// <summary>
 		/// Debug only; this is hideously inefficient
 		/// </summary>
-		public String GetKey(TrieNodeBase seek)
+		public String GetKey(ITrieNode<TValue> seek)
 		{
 			String sofar = String.Empty;
 
@@ -356,7 +349,7 @@ namespace KVK.Core
 		/// <summary>
 		/// Debug only; this is hideously inefficient
 		/// </summary>
-		delegate bool GetKeyHelper(TrieNodeBase cur);
+		delegate bool GetKeyHelper(ITrieNode<TValue> cur);
 		public String GetKey(TValue seek)
 		{
 			String sofar = String.Empty;
@@ -388,10 +381,10 @@ namespace KVK.Core
 			return null;
 		}
 
-		public TrieNodeBase FindNode(String s_in)
+		public ITrieNode<TValue> FindNode(String s_in)
 		{
-			TrieNodeBase node = _root;
-			foreach (Char c in s_in)
+			var node = _root;
+			foreach (var c in s_in)
 				if ((node = node[c]) == null)
 					return null;
 			return node;
@@ -404,9 +397,9 @@ namespace KVK.Core
 		/// means the search fails; it is not the design of the 'OrLast' feature to provide 'closest' or 'best'
 		/// matching but rather to enable truncated tails still in the context of exact prefix matching.
 		/// </summary>
-		public TrieNodeBase FindNodeOrLast(String s_in, out bool f_exact)
+		public ITrieNode<TValue> FindNodeOrLast(String s_in, out bool f_exact)
 		{
-			TrieNodeBase node = _root;
+			var node = _root;
 			foreach (Char c in s_in)
 			{
 				if (node.IsLeaf)
@@ -457,8 +450,8 @@ namespace KVK.Core
 
 		public IEnumerable<TValue> FindAll(String s_in)
 		{
-			TrieNodeBase node = _root;
-			foreach (Char c in s_in)
+			var node = _root;
+			foreach (var c in s_in)
 			{
 				if ((node = node[c]) == null)
 					break;
@@ -469,15 +462,15 @@ namespace KVK.Core
 
 		public IEnumerable<TValue> SubsumedValues(String s)
 		{
-			TrieNodeBase node = FindNode(s);
+			var node = FindNode(s);
 			if (node == null)
 				return Enumerable.Empty<TValue>();
 			return node.SubsumedValues();
 		}
 
-		public IEnumerable<TrieNodeBase> SubsumedNodes(String s)
+		public IEnumerable<ITrieNode<TValue>> SubsumedNodes(String s)
 		{
-			TrieNodeBase node = FindNode(s);
+			var node = FindNode(s);
 			if (node == null)
 				return Enumerable.Empty<TrieNodeBase>();
 			return node.SubsumedNodes();
@@ -488,7 +481,7 @@ namespace KVK.Core
 			int i_cur = 0;
 			while (i_cur < s.Length)
 			{
-				TrieNodeBase node = _root;
+				var node = _root;
 				int i = i_cur;
 				while (i < s.Length)
 				{
@@ -506,12 +499,12 @@ namespace KVK.Core
 		/// <summary>
 		/// note: only returns nodes with non-null values
 		/// </summary>
-		public void DepthFirstTraverse(Action<String,TrieNodeBase> callback)
+		public void DepthFirstTraverse(Action<String,ITrieNode<TValue>> callback)
 		{
 			var rgch = new Char[100];
 			int depth = 0;
 
-			Action<TrieNodeBase> fn = null;
+			Action<ITrieNode<TValue>> fn = null;
 			fn = cur =>
 			{
 				if (depth >= rgch.Length)
@@ -523,7 +516,7 @@ namespace KVK.Core
 				foreach (var kvp in cur.CharNodePairs())
 				{
 					rgch[depth] = kvp.Key;
-					TrieNodeBase n = kvp.Value;
+					var n = kvp.Value;
 					if (n.Nodes != null)
 					{
 						depth++;
@@ -545,12 +538,12 @@ namespace KVK.Core
 		/// <summary>
 		/// note: only returns nodes with non-null values
 		/// </summary>
-		public void EnumerateLeafPaths(Action<String,IEnumerable<TrieNodeBase>> callback)
+		public void EnumerateLeafPaths(Action<String,IEnumerable<ITrieNode<TValue>>> callback)
 		{
-			var stk = new Stack<TrieNodeBase>();
+			var stk = new Stack<ITrieNode<TValue>>();
 			var rgch = new Char[100];
 
-			Action<TrieNodeBase> fn = null;
+			Action<ITrieNode<TValue>> fn = null;
 			fn = cur =>
 			{
 				if (stk.Count >= rgch.Length)
@@ -562,7 +555,7 @@ namespace KVK.Core
 				foreach (var kvp in cur.CharNodePairs())
 				{
 					rgch[stk.Count] = kvp.Key;
-					TrieNodeBase n = kvp.Value;
+					var n = kvp.Value;
 					stk.Push(n);
 					if (n.Nodes != null)
 						fn(n);

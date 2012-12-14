@@ -1,4 +1,5 @@
-﻿using KVK.Core;
+﻿using System;
+using KVK.Core;
 using NUnit.Framework;
 
 namespace Kvk.Unit.Tests
@@ -6,7 +7,7 @@ namespace Kvk.Unit.Tests
 	[TestFixture]
     public class TrieTests
     {
-		Trie<object> subject;
+		ITrie<object> subject;
 
 		[SetUp]
 		public void A_trie_with_some_values ()

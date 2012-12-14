@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KVK.Core", "src\KVK.Core\KVK.Core.csproj", "{302D67B0-1127-408F-B884-911F245CE425}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "src\Host\Host.csproj", "{9051FE74-B467-4901-A8B6-7B382238D90E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5DD82997-7018-4170-9EBA-EC817B7D885E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3FC58151-65FE-4FF7-BCD3-E8AB2064CAB3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kvk.Unit.Tests", "src\Kvk.Unit.Tests\Kvk.Unit.Tests.csproj", "{67394A7F-4E1C-49F1-B7B4-81D5BA1D0B30}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{302D67B0-1127-408F-B884-911F245CE425}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{302D67B0-1127-408F-B884-911F245CE425}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{302D67B0-1127-408F-B884-911F245CE425}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{302D67B0-1127-408F-B884-911F245CE425}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9051FE74-B467-4901-A8B6-7B382238D90E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9051FE74-B467-4901-A8B6-7B382238D90E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9051FE74-B467-4901-A8B6-7B382238D90E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9051FE74-B467-4901-A8B6-7B382238D90E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67394A7F-4E1C-49F1-B7B4-81D5BA1D0B30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67394A7F-4E1C-49F1-B7B4-81D5BA1D0B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67394A7F-4E1C-49F1-B7B4-81D5BA1D0B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67394A7F-4E1C-49F1-B7B4-81D5BA1D0B30}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{302D67B0-1127-408F-B884-911F245CE425} = {5DD82997-7018-4170-9EBA-EC817B7D885E}
+		{67394A7F-4E1C-49F1-B7B4-81D5BA1D0B30} = {3FC58151-65FE-4FF7-BCD3-E8AB2064CAB3}
+	EndGlobalSection
+EndGlobal

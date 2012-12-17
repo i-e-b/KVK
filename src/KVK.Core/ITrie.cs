@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace KVK.Core
 {
-	public interface ITrie<T> 
+	public interface ITrie<T>
 	{
 		/// <summary> Add a value to a key path. Returns the resulting node </summary>
 		ITrieNode<T> Add(string key, T value);

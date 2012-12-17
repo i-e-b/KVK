@@ -22,16 +22,16 @@ class Program
         { "hippo", true }, 
     }; 
  
-    static void Main(String[] args) 
+    static void Main() 
     { 
-        String s = "Once upon a time, a rabbit met an ape in the woods."; 
+        var s = "Once upon a time, a rabbit met an ape in the woods."; 
  
         // Retrieve payloads for words in the string. 
         // 
         // output: 
         //      cute 
         //      smart 
-        foreach (String word in value_trie.AllSubstringValues(s)) 
+        foreach (var word in value_trie.AllSubstringValues(s)) 
                 Console.WriteLine(word); 
  
         // Simply test a string for any of the words in the trie. 

@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="ITrie.cs" />
     <Compile Include="ITrieNode.cs" />
-    <Compile Include="TrieExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trie.cs" />
   </ItemGroup>

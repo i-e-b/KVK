@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 
 // ReSharper disable CompareNonConstrainedGenericWithNull
-
-
 // Originally by http://www.glennslayden.com/code/c-sharp/trie
 // Needs some cleanup!
 
@@ -79,7 +77,6 @@ namespace KVK.Core
 						if (node.ShouldOptimize)
 						{
 							var newNode = new SparseTrieNode(node.CharNodePairs()) {Value = node.Value};
-							sparseNodeCount++;
 							ReplaceChild(keyValuePair.Key, newNode);
 						}
 						node.OptimizeChildNodes();
@@ -234,7 +231,6 @@ namespace KVK.Core
 
 		private ITrieNode<TValue> _root = new TrieNode();
 		int nodeCount;
-		public static int sparseNodeCount = 0;
 
 		// in combination with Add(...), enables C# 3.0 initialization syntax, even though it never seems to call it
 		public IEnumerator GetEnumerator()
@@ -254,7 +250,6 @@ namespace KVK.Core
 			if (_root.ShouldOptimize)
 			{
 				_root = new SparseTrieNode(_root.CharNodePairs());
-				sparseNodeCount++;
 			}
 			_root.OptimizeChildNodes();
 		}

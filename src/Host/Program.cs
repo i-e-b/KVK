@@ -5,7 +5,7 @@ using KVK.Core;
 class Program 
 { 
     // trie with payload of type <String> 
-    static readonly Trie<String> value_trie = new Trie<String> 
+    static readonly ITrie<String> value_trie = new Trie<String> 
     { 
         { "rabbit", "cute" }, 
         { "giraffe", "tall" }, 
@@ -14,7 +14,7 @@ class Program
     }; 
  
     // degenerate case of a trie without payload 
-    static readonly Trie<bool> simple_trie = new Trie<bool> 
+    static readonly ITrie<bool> simple_trie = new Trie<bool> 
     { 
         { "rabbit", true }, 
         { "giraffe", true }, 

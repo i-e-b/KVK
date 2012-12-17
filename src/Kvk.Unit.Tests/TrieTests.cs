@@ -84,10 +84,13 @@ namespace Kvk.Unit.Tests
 		}
 
 		[Test]
-		public void Given_a_string_can_find_all_values_that_match_any_substring ()
+		[TestCase("Poly put the kettle on", new string[0])]
+		[TestCase("What about polyglot persistence?", new[] { "one" })]
+		[TestCase("polyglottal", new[] { "one", "three" })]
+		[TestCase("persaypolyglottalpolyhedronplay", new[] { "one", "three", "two" })]
+		public void Given_a_string_can_find_all_values_that_match_any_substring (string input, string[] expected)
 		{
-			Assert.That(subject.AllSubstringValues("Oh, poly put the kettle on"), Is.Empty);
-			Assert.That(subject.AllSubstringValues("What about polyglot persistence?"), Is.EquivalentTo(new[]{"one"}));
+			Assert.That(subject.AllSubstringValues(input), Is.EquivalentTo(expected));
 		}
     }
 }

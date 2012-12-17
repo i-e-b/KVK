@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,15 +16,9 @@ namespace KVK.Core
 	{
 		public abstract class TrieNodeBase:ITrieNode<TValue>
 		{
-			protected TValue m_value = default(TValue);
+			public TValue Value { get; set; }
 
-			public TValue Value
-			{
-				get { return m_value; }
-				set { m_value = value; }
-			}
-
-			public bool HasValue { get { return !Equals(m_value, default(TValue)); } }
+			public bool HasValue { get { return !Equals(Value, default(TValue)); } }
 			public abstract bool IsLeaf { get; }
 			public abstract ITrieNode<TValue> this[char c] { get; }
 			public abstract ITrieNode<TValue>[] Nodes { get; }
@@ -36,7 +31,6 @@ namespace KVK.Core
 			/// <summary>
 			/// Includes current node value
 			/// </summary>
-			/// <returns></returns>
 			public IEnumerable<TValue> SubsumedValues()
 			{
 				if (Value != null)
@@ -51,7 +45,6 @@ namespace KVK.Core
 			/// <summary>
 			/// Includes current node
 			/// </summary>
-			/// <returns></returns>
 			public IEnumerable<ITrieNode<TValue>> SubsumedNodes()
 			{
 				yield return this;
@@ -65,7 +58,6 @@ namespace KVK.Core
 			/// <summary>
 			/// Doesn't include current node
 			/// </summary>
-			/// <returns></returns>
 			public IEnumerable<ITrieNode<TValue>> SubsumedNodesExceptThis()
 			{
 				if (Nodes != null)
@@ -81,17 +73,16 @@ namespace KVK.Core
 			public void OptimizeChildNodes()
 			{
 				if (Nodes != null)
-					foreach (var q in CharNodePairs())
+					foreach (var keyValuePair in CharNodePairs())
 					{
-						var n_old = q.Value;
-						if (n_old.ShouldOptimize)
+						var node = keyValuePair.Value;
+						if (node.ShouldOptimize)
 						{
-							TrieNodeBase n_new = new SparseTrieNode(n_old.CharNodePairs());
-							n_new.m_value = n_old.Value;
-							c_sparse_nodes++;
-							ReplaceChild(q.Key, n_new);
+							var newNode = new SparseTrieNode(node.CharNodePairs()) {Value = node.Value};
+							sparseNodeCount++;
+							ReplaceChild(keyValuePair.Key, newNode);
 						}
-						n_old.OptimizeChildNodes();
+						node.OptimizeChildNodes();
 					}
 			}
 
@@ -242,11 +233,11 @@ namespace KVK.Core
 		};
 
 		private ITrieNode<TValue> _root = new TrieNode();
-		public int c_nodes = 0;
-		public static int c_sparse_nodes = 0;
+		int nodeCount;
+		public static int sparseNodeCount = 0;
 
 		// in combination with Add(...), enables C# 3.0 initialization syntax, even though it never seems to call it
-		public System.Collections.IEnumerator GetEnumerator()
+		public IEnumerator GetEnumerator()
 		{
 			return _root.SubsumedNodes().GetEnumerator();
 		}
@@ -263,7 +254,7 @@ namespace KVK.Core
 			if (_root.ShouldOptimize)
 			{
 				_root = new SparseTrieNode(_root.CharNodePairs());
-				c_sparse_nodes++;
+				sparseNodeCount++;
 			}
 			_root.OptimizeChildNodes();
 		}
@@ -274,7 +265,7 @@ namespace KVK.Core
 		{
 			var node = _root;
 			foreach (Char c in s)
-				node = node.AddChild(c,ref c_nodes);
+				node = node.AddChild(c,ref nodeCount);
 
 			node.Value = v;
 			return node;

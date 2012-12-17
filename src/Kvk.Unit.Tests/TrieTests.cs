@@ -1,4 +1,6 @@
-﻿using KVK.Core;
+﻿using System.Collections.Generic;
+using System.Linq;
+using KVK.Core;
 using NUnit.Framework;
 
 namespace Kvk.Unit.Tests
@@ -91,6 +93,14 @@ namespace Kvk.Unit.Tests
 		public void Given_a_string_can_find_all_values_that_match_any_substring (string input, string[] expected)
 		{
 			Assert.That(subject.AllSubstringValues(input), Is.EquivalentTo(expected));
+		}
+
+		[Test]
+		public void Can_convert_one_trie_to_another ()
+		{
+			var other = subject.ToTrie(old => (old.ToString() == "one") ? ("X") : ("Y"));
+
+			Assert.That(other.AllSubstringValues("polyglot, polyhedron, polyglottal"), Is.EquivalentTo(new[] { "X", "Y", "X", "Y" }));
 		}
     }
 }

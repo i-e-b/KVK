@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace KVK.Core
@@ -30,5 +31,8 @@ namespace KVK.Core
 
 		/// <summary> find all values that match any substring </summary>
 		IEnumerable<T> AllSubstringValues(string s);
+
+		/// <summary> Convert one trie to another, converting the stored values </summary>
+		ITrie<TNew> ToTrie<TNew>(Func<T, TNew> value_converter);
 	}
 }

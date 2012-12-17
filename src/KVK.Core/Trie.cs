@@ -454,7 +454,7 @@ namespace KVK.Core
 		/// <summary>
 		/// note: only returns nodes with non-null values
 		/// </summary>
-		public void DepthFirstTraverse(Action<String,ITrieNode<TValue>> callback)
+		void DepthFirstTraverse(Action<String,ITrieNode<TValue>> callback)
 		{
 			var rgch = new Char[100];
 			int depth = 0;
@@ -489,45 +489,7 @@ namespace KVK.Core
 			fn(_root);
 		}
 
-
-		/// <summary>
-		/// note: only returns nodes with non-null values
-		/// </summary>
-		public void EnumerateLeafPaths(Action<String,IEnumerable<ITrieNode<TValue>>> callback)
-		{
-			var stk = new Stack<ITrieNode<TValue>>();
-			var rgch = new Char[100];
-
-			Action<ITrieNode<TValue>> fn = null;
-			fn = cur =>
-			{
-				if (stk.Count >= rgch.Length)
-				{
-					var tmp = new Char[rgch.Length * 2];
-					Buffer.BlockCopy(rgch, 0, tmp, 0, rgch.Length * sizeof(Char));
-					rgch = tmp;
-				}
-				foreach (var kvp in cur.CharNodePairs())
-				{
-					rgch[stk.Count] = kvp.Key;
-					var n = kvp.Value;
-					stk.Push(n);
-					if (n.Nodes != null)
-						fn(n);
-					else
-					{
-						if (n.Value == null)		// leaf nodes should always have a value
-							throw new Exception();
-						callback(new String(rgch, 0, stk.Count), stk);
-					}
-					stk.Pop();
-				}
-			};
-
-			fn(_root);
-		}
-
-		public Trie<TNew> ToTrie<TNew>(Func<TValue, TNew> value_converter)
+		public ITrie<TNew> ToTrie<TNew>(Func<TValue, TNew> value_converter)
 		{
 			var t = new Trie<TNew>();
 			DepthFirstTraverse((s,n)=> t.Add(s,value_converter(n.Value)));

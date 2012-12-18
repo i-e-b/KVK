@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using KVK.Core.Trie;
 
 namespace KVK.Core
 {

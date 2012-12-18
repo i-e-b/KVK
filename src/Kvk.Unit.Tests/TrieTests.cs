@@ -1,4 +1,5 @@
 ﻿using KVK.Core;
+using KVK.Core.Trie;
 using NUnit.Framework;
 
 namespace Kvk.Unit.Tests

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace KVK.Core
+namespace KVK.Core.Trie
 {
 	public interface ITrieNode<T>
 	{

@@ -7,7 +7,7 @@ using System.Text;
 // ReSharper disable CompareNonConstrainedGenericWithNull
 // Originally by http://www.glennslayden.com/code/c-sharp/trie
 
-namespace KVK.Core
+namespace KVK.Core.Trie
 {
 	public class Trie<TValue> : IEnumerable<ITrieNode<TValue>>, ITrie<TValue>
 	{

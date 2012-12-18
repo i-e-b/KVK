@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using KVK.Core;
+using KVK.Core.Trie;
 
 class Program 
 { 

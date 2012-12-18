@@ -105,7 +105,12 @@ namespace Kvk.Unit.Tests.TrieTests
 		public void Trie_still_works_after_being_compacted()
 		{
 			subject.Compact();
+			
 			Assert.That(subject.AllSubstringValues("persaypolyglottalpolyhedronplay"), Is.EquivalentTo(new[] { "one", "three", "two" }));
+			
+			var node = subject.FindNode("polyglot");
+			var reconstructed = subject.GetKey(node);
+			Assert.That(reconstructed, Is.EqualTo("polyglot"));
 		}
 
 		[Test]

@@ -10,7 +10,8 @@ namespace KVK.Core.Trie
 		bool IsLeaf { get; }
 
 		ITrieNode<T> this[char c] { get; }
-		ITrieNode<T>[] Nodes { get; }
+		ITrieNode<T>[] ChildNodes { get; }
+		ITrieNode<T> Parent { get; }
 
 		void SetLeaf();
 		int ChildCount { get; }

@@ -1,5 +1,4 @@
 ﻿using System;
-using KVK.Core;
 using KVK.Core.Trie;
 using NUnit.Framework;
 
@@ -14,6 +13,48 @@ namespace Kvk.Unit.Tests.TrieTests
 		public void a_trie_of_objects()
 		{
 			subject = new Trie<object>();
+		}
+
+		[Test][Description("Test bi-direction links in Trie to recover paths")]
+		public void querying_node_path ()
+		{
+			ITrieNode<object> lastNode = null;
+			foreach (var word in doc.Split(' ', '\r', '\n'))
+			{
+				lastNode = subject.Add(word, Guid.Empty);
+			}
+
+			var start = DateTime.Now;
+			for (int i = 0; i < 1e5; i++)
+			{
+				subject.GetKey(lastNode);
+			}
+			var time = DateTime.Now - start;
+
+			Console.WriteLine(time);
+			Assert.That(time.TotalSeconds, Is.LessThan(60));
+		}
+
+		[Test][Description("Test bi-direction links in Trie to recover paths")]
+		public void querying_node_path_by_value ()
+		{
+			foreach (var word in doc.Split(' ', '\r', '\n'))
+			{
+				subject.Add(word, Guid.Empty);
+			}
+
+			var id = Guid.NewGuid();
+			subject.Add("Mauris", id);
+
+			var start = DateTime.Now;
+			for (int i = 0; i < 1e5; i++)
+			{
+				subject.GetKeyByValue(id);
+			}
+			var time = DateTime.Now - start;
+
+			Console.WriteLine(time);
+			Assert.That(time.TotalSeconds, Is.LessThan(60));
 		}
 
 		[Test][Description("Takes 20 to 40 character keys from Lorem text and writes them to the Trie")]

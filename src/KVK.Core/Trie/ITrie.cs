@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using KVK.Core.Trie;
 
-namespace KVK.Core
+namespace KVK.Core.Trie
 {
 	public interface ITrie<T>
 	{
@@ -24,10 +23,10 @@ namespace KVK.Core
 		/// <summary> Returns true if the key-path exists and has a value </summary>
 		bool Contains(string path);
 
-		/// <summary> Recover a key-path by its node, by searching. </summary>
+		/// <summary> Recover a key-path by its node, by parent chain (reasonably efficient). </summary>
 		string GetKey(ITrieNode<T> node);
 
-		/// <summary> Recover a key-path by its node, by searching. </summary>
+		/// <summary> Recover a key-path by its node, by searching (low efficiency). </summary>
 		string GetKeyByValue(T node);
 
 		/// <summary> find all values that match any substring </summary>

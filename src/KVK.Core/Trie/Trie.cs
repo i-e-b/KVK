@@ -18,7 +18,8 @@ namespace KVK.Core.Trie
 			public bool HasValue { get { return !Equals(Value, default(TValue)); } }
 			public abstract bool IsLeaf { get; }
 			public abstract ITrieNode<TValue> this[char c] { get; }
-			public abstract ITrieNode<TValue>[] Nodes { get; }
+			public abstract ITrieNode<TValue>[] ChildNodes { get; }
+			public ITrieNode<TValue> Parent { get; protected set; }
 			public abstract void SetLeaf();
 			public abstract int ChildCount { get; }
 			public abstract bool ShouldOptimize { get; }
@@ -32,8 +33,8 @@ namespace KVK.Core.Trie
 			{
 				if (Value != null)
 					yield return Value;
-				if (Nodes != null)
-					foreach (var child in Nodes)
+				if (ChildNodes != null)
+					foreach (var child in ChildNodes)
 						if (child != null)
 							foreach (var t in child.SubsumedValues())
 								yield return t;
@@ -45,8 +46,8 @@ namespace KVK.Core.Trie
 			public IEnumerable<ITrieNode<TValue>> SubsumedNodes()
 			{
 				yield return this;
-				if (Nodes != null)
-					foreach (TrieNodeBase child in Nodes)
+				if (ChildNodes != null)
+					foreach (TrieNodeBase child in ChildNodes)
 						if (child != null)
 							foreach (TrieNodeBase n in child.SubsumedNodes())
 								yield return n;
@@ -57,8 +58,8 @@ namespace KVK.Core.Trie
 			/// </summary>
 			public IEnumerable<ITrieNode<TValue>> SubsumedNodesExceptThis()
 			{
-				if (Nodes != null)
-					foreach (TrieNodeBase child in Nodes)
+				if (ChildNodes != null)
+					foreach (TrieNodeBase child in ChildNodes)
 						if (child != null)
 							foreach (TrieNodeBase n in child.SubsumedNodes())
 								yield return n;
@@ -69,7 +70,7 @@ namespace KVK.Core.Trie
 			/// </summary>
 			public void OptimizeChildNodes()
 			{
-				if (Nodes != null)
+				if (ChildNodes != null)
 					foreach (var keyValuePair in CharNodePairs())
 					{
 						var node = keyValuePair.Value;
@@ -106,7 +107,7 @@ namespace KVK.Core.Trie
 				}
 			}
 
-			public override ITrieNode<TValue>[] Nodes { get { return d.Values.ToArray(); } }
+			public override ITrieNode<TValue>[] ChildNodes { get { return d.Values.ToArray(); } }
 
 			/// <summary>
 			/// do not use in current form. This means, run OptimizeSparseNodes *after* any pruning
@@ -125,7 +126,7 @@ namespace KVK.Core.Trie
 				ITrieNode<TValue> node;
 				if (!d.TryGetValue(c, out node))
 				{
-					node = new TrieNode();
+					node = new TrieNode(this);
 					node_count++;
 					d.Add(c, node);
 				}
@@ -144,21 +145,26 @@ namespace KVK.Core.Trie
 
 		class TrieNode : TrieNodeBase
 		{
-			private ITrieNode<TValue>[] nodes;
+			private ITrieNode<TValue>[] childNodes;
 			private Char m_base;
 
-			public override int ChildCount { get { return (nodes != null) ? nodes.Count(e => e != null) : 0; } }
+			public TrieNode(ITrieNode<TValue> parent)
+			{
+				Parent = parent;
+			}
 
-			public override ITrieNode<TValue>[] Nodes { get { return nodes; } }
+			public override int ChildCount { get { return (childNodes != null) ? childNodes.Count(e => e != null) : 0; } }
 
-			public override void SetLeaf() { nodes = null; }
+			public override ITrieNode<TValue>[] ChildNodes { get { return childNodes; } }
+
+			public override void SetLeaf() { childNodes = null; }
 
 			public override KeyValuePair<Char, ITrieNode<TValue>>[] CharNodePairs()
 			{
 				var rg = new KeyValuePair<char, ITrieNode<TValue>>[ChildCount];
 				Char ch = m_base;
 				int i = 0;
-				foreach (TrieNodeBase child in nodes)
+				foreach (TrieNodeBase child in childNodes)
 				{
 					if (child != null)
 						rg[i++] = new KeyValuePair<char, ITrieNode<TValue>>(ch, child);
@@ -171,63 +177,63 @@ namespace KVK.Core.Trie
 			{
 				get
 				{
-					if (nodes != null && m_base <= c && c < m_base + nodes.Length)
-						return nodes[c - m_base];
+					if (childNodes != null && m_base <= c && c < m_base + childNodes.Length)
+						return childNodes[c - m_base];
 					return null;
 				}
 			}
 
 			public override ITrieNode<TValue> AddChild(char c, ref int node_count)
 			{
-				if (nodes == null)
+				if (childNodes == null)
 				{
 					m_base = c;
-					nodes = new ITrieNode<TValue>[1];
+					childNodes = new ITrieNode<TValue>[1];
 				}
-				else if (c >= m_base + nodes.Length)
+				else if (c >= m_base + childNodes.Length)
 				{
-					Array.Resize(ref nodes, c - m_base + 1);
+					Array.Resize(ref childNodes, c - m_base + 1);
 				}
 				else if (c < m_base)
 				{
 					var c_new = (Char)(m_base - c);
-					var tmp = new ITrieNode<TValue>[nodes.Length + c_new];
-					nodes.CopyTo(tmp, c_new);
+					var tmp = new ITrieNode<TValue>[childNodes.Length + c_new];
+					childNodes.CopyTo(tmp, c_new);
 					m_base = c;
-					nodes = tmp;
+					childNodes = tmp;
 				}
 
-				var node = nodes[c - m_base];
+				var node = childNodes[c - m_base];
 				if (node == null)
 				{
-					node = new TrieNode();
+					node = new TrieNode(this);
 					node_count++;
-					nodes[c - m_base] = node;
+					childNodes[c - m_base] = node;
 				}
 				return node;
 			}
 
 			public override void ReplaceChild(Char c, TrieNodeBase n)
 			{
-				if (nodes == null || c >= m_base + nodes.Length || c < m_base)
+				if (childNodes == null || c >= m_base + childNodes.Length || c < m_base)
 					throw new Exception();
-				nodes[c - m_base] = n;
+				childNodes[c - m_base] = n;
 			}
 
 			public override bool ShouldOptimize
 			{
 				get
 				{
-					if (nodes == null)
+					if (childNodes == null)
 						return false;
-					return (ChildCount * 9 < nodes.Length);		// empirically determined optimal value (space & time)
+					return (ChildCount * 9 < childNodes.Length);		// empirically determined optimal value (space & time)
 				}
 			}
 
-			public override bool IsLeaf { get { return nodes == null; } }
+			public override bool IsLeaf { get { return childNodes == null; } }
 		};
 
-		ITrieNode<TValue> thisNode = new TrieNode();
+		ITrieNode<TValue> thisNode = new TrieNode(null);
 		int nodeCount;
 
 		// in combination with Add(...), enables C# 3.0 initialization syntax, even though it never seems to call it
@@ -281,25 +287,16 @@ namespace KVK.Core.Trie
 		{
 			var sofar = new StringBuilder();
 
-			Func<ITrieNode<TValue>, bool> fn = null;
+			Action<ITrieNode<TValue>> fn = null;
 			fn = cur =>
 			{
-				foreach (var kvp in cur.CharNodePairs())
-				{
-					if (kvp.Value == seek)
-					{
-						sofar.Insert(0, kvp.Key);
-						return true;
-					}
-					if (kvp.Value.Nodes == null || !fn(kvp.Value)) continue;
-
-					sofar.Insert(0, kvp.Key);
-					return true;
-				}
-				return false;
+				if (cur.Parent == null) return;
+				var ch = cur.Parent.CharNodePairs().Single(kvp => kvp.Value == cur).Key;
+				sofar.Insert(0, ch);
+				fn(cur.Parent);
 			};
-
-			return fn(thisNode) ? sofar.ToString() : null;
+			fn(seek);
+			return sofar.ToString();
 		}
 
 		/// <summary>
@@ -319,7 +316,7 @@ namespace KVK.Core.Trie
 						sofar.Insert(0, kvp.Key);
 						return true;
 					}
-					if (kvp.Value.Nodes == null || !fn(kvp.Value)) continue;
+					if (kvp.Value.ChildNodes == null || !fn(kvp.Value)) continue;
 
 					sofar.Insert(0, kvp.Key);
 					return true;
@@ -427,7 +424,7 @@ namespace KVK.Core.Trie
 				{
 					rgch[depth] = kvp.Key;
 					var n = kvp.Value;
-					if (n.Nodes != null)
+					if (n.ChildNodes != null)
 					{
 						depth++;
 						fn(n);

@@ -33,6 +33,19 @@ namespace KVK.Core
 		IEnumerable<T> AllSubstringValues(string s);
 
 		/// <summary> Convert one trie to another, converting the stored values </summary>
-		ITrie<TNew> ToTrie<TNew>(Func<T, TNew> value_converter);
+		ITrie<TNew> ToTrie<TNew>(Func<T, TNew> valueConverter);
+
+		/// <summary> Optimise memory usage for this trie </summary>
+		void Compact();
+
+		/// <summary>Find the node for a given key, or the leaf node for the longest matching substring</summary>
+		/// <remarks>
+		/// If continuation from the terminal node is possible with a different input string, then that node is not
+		/// returned as a 'last' node for the given input. In other words, 'last' nodes must be leaf nodes, where
+		/// continuation possibility is truly unknown. The presense of a nodes array that we couldn't match to 
+		/// means the search fails; it is not the design of the 'OrLast' feature to provide 'closest' or 'best'
+		/// matching but rather to enable truncated tails still in the context of exact prefix matching.
+		/// </remarks>
+		ITrieNode<T> FindNodeOrLast(string key, out bool wasExactMatch);
 	}
 }

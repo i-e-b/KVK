@@ -6,13 +6,12 @@ using System.Text;
 
 // ReSharper disable CompareNonConstrainedGenericWithNull
 // Originally by http://www.glennslayden.com/code/c-sharp/trie
-// Needs some cleanup!
 
 namespace KVK.Core
 {
 	public class Trie<TValue> : IEnumerable<ITrieNode<TValue>>, ITrie<TValue>
 	{
-		public abstract class TrieNodeBase:ITrieNode<TValue>
+		abstract class TrieNodeBase:ITrieNode<TValue>
 		{
 			public TValue Value { get; set; }
 
@@ -87,7 +86,7 @@ namespace KVK.Core
 
 		};
 
-		public class SparseTrieNode : TrieNodeBase
+		class SparseTrieNode : TrieNodeBase
 		{
 			Dictionary<Char, ITrieNode<TValue>> d;
 
@@ -143,13 +142,12 @@ namespace KVK.Core
 
 		};
 
-		public class TrieNode : TrieNodeBase
+		class TrieNode : TrieNodeBase
 		{
 			private ITrieNode<TValue>[] nodes;
 			private Char m_base;
 
 			public override int ChildCount { get { return (nodes != null) ? nodes.Count(e => e != null) : 0; } }
-			public int AllocatedChildCount { get { return (nodes != null) ? nodes.Length : 0; } }
 
 			public override ITrieNode<TValue>[] Nodes { get { return nodes; } }
 
@@ -229,36 +227,34 @@ namespace KVK.Core
 			public override bool IsLeaf { get { return nodes == null; } }
 		};
 
-		private ITrieNode<TValue> _root = new TrieNode();
+		ITrieNode<TValue> thisNode = new TrieNode();
 		int nodeCount;
 
 		// in combination with Add(...), enables C# 3.0 initialization syntax, even though it never seems to call it
 		public IEnumerator GetEnumerator()
 		{
-			return _root.SubsumedNodes().GetEnumerator();
+			return thisNode.SubsumedNodes().GetEnumerator();
 		}
 
 		IEnumerator<ITrieNode<TValue>> IEnumerable<ITrieNode<TValue>>.GetEnumerator()
 		{
-			return _root.SubsumedNodes().GetEnumerator();
+			return thisNode.SubsumedNodes().GetEnumerator();
 		}
 
-		public IEnumerable<TValue> Values { get { return _root.SubsumedValues(); } }
+		public IEnumerable<TValue> Values { get { return thisNode.SubsumedValues(); } }
 
-		public void OptimizeSparseNodes()
+		public void Compact()
 		{
-			if (_root.ShouldOptimize)
+			if (thisNode.ShouldOptimize)
 			{
-				_root = new SparseTrieNode(_root.CharNodePairs());
+				thisNode = new SparseTrieNode(thisNode.CharNodePairs());
 			}
-			_root.OptimizeChildNodes();
+			thisNode.OptimizeChildNodes();
 		}
-
-		public ITrieNode<TValue> Root { get { return _root; } }
 
 		public ITrieNode<TValue> Add(string s, TValue v)
 		{
-			var node = _root;
+			var node = thisNode;
 			foreach (Char c in s)
 				node = node.AddChild(c,ref nodeCount);
 
@@ -268,7 +264,7 @@ namespace KVK.Core
 
 		public bool Contains(String s)
 		{
-			var node = _root;
+			var node = thisNode;
 			foreach (var c in s)
 			{
 				node = node[c];
@@ -285,7 +281,7 @@ namespace KVK.Core
 		{
 			var sofar = new StringBuilder();
 
-			GetKeyHelper fn = null;
+			Func<ITrieNode<TValue>, bool> fn = null;
 			fn = cur =>
 			{
 				foreach (var kvp in cur.CharNodePairs())
@@ -303,7 +299,7 @@ namespace KVK.Core
 				return false;
 			};
 
-			return fn(_root) ? sofar.ToString() : null;
+			return fn(thisNode) ? sofar.ToString() : null;
 		}
 
 		/// <summary>
@@ -313,7 +309,7 @@ namespace KVK.Core
 		{
 			var sofar = new StringBuilder();
 
-			GetKeyHelper fn = null;
+			Func<ITrieNode<TValue>, bool> fn = null;
 			fn = cur =>
 			{
 				foreach (var kvp in cur.CharNodePairs())
@@ -323,56 +319,50 @@ namespace KVK.Core
 						sofar.Insert(0, kvp.Key);
 						return true;
 					}
-					if (kvp.Value.Nodes != null && fn(kvp.Value))
-					{
-						sofar.Insert(0, kvp.Key);
-						return true;
-					}
+					if (kvp.Value.Nodes == null || !fn(kvp.Value)) continue;
+
+					sofar.Insert(0, kvp.Key);
+					return true;
 				}
 				return false;
 			};
 
-			return fn(_root) ? sofar.ToString() : null;
+			return fn(thisNode) ? sofar.ToString() : null;
 		}
-		delegate bool GetKeyHelper(ITrieNode<TValue> cur);
 
 		public ITrieNode<TValue> FindNode(String s_in)
 		{
-			var node = _root;
+			var node = thisNode;
 			return s_in.Any(c => (node = node[c]) == null) ? null : node;
 		}
 
-		/// <summary>
-		/// If continuation from the terminal node is possible with a different input string, then that node is not
-		/// returned as a 'last' node for the given input. In other words, 'last' nodes must be leaf nodes, where
-		/// continuation possibility is truly unknown. The presense of a nodes array that we couldn't match to 
-		/// means the search fails; it is not the design of the 'OrLast' feature to provide 'closest' or 'best'
-		/// matching but rather to enable truncated tails still in the context of exact prefix matching.
-		/// </summary>
-		public ITrieNode<TValue> FindNodeOrLast(String s_in, out bool f_exact)
+		public ITrieNode<TValue> FindNodeOrLast(String key, out bool wasExactMatch)
 		{
-			var node = _root;
-			foreach (Char c in s_in)
+			var node = thisNode;
+			foreach (var c in key)
 			{
 				if (node.IsLeaf)
 				{
-					f_exact = false;
+					wasExactMatch = false;
 					return node;
 				}
-				if ((node = node[c]) == null)
-				{
-					f_exact = false;
-					return null;
-				}
+				if ((node = node[c]) != null) continue;
+				wasExactMatch = false;
+				return null;
 			}
-			f_exact = true;
+			wasExactMatch = true;
 			return node;
 		}
 
-		// TODO : write in safe code.
-		public unsafe TValue Find(String s_in)
+		public TValue Find(string targetKey)
 		{
-			var node = _root;
+			return UnsafeFind(targetKey);
+		}
+
+		// TODO : write in safe code.
+		unsafe TValue UnsafeFind(String s_in)
+		{
+			var node = thisNode;
 			fixed (Char* pin_s = s_in)
 			{
 				Char* p = pin_s;
@@ -387,22 +377,9 @@ namespace KVK.Core
 			}
 		}
 
-		public unsafe TValue Find(Char* p_tag, int cb_ctag)
-		{
-			var node = _root;
-			Char* p_end = p_tag + cb_ctag;
-			while (p_tag < p_end)
-			{
-				if ((node = node[*p_tag]) == null)
-					return default(TValue);
-				p_tag++;
-			}
-			return node.Value;
-		}
-
 		public IEnumerable<TValue> FindAll(String s_in)
 		{
-			var node = _root;
+			var node = thisNode;
 			foreach (var c in s_in)
 			{
 				if ((node = node[c]) == null)
@@ -412,26 +389,12 @@ namespace KVK.Core
 			}
 		}
 
-		public IEnumerable<TValue> SubsumedValues(String s)
-		{
-			var node = FindNode(s);
-			return node == null ? Enumerable.Empty<TValue>() : node.SubsumedValues();
-		}
-
-		public IEnumerable<ITrieNode<TValue>> SubsumedNodes(String s)
-		{
-			var node = FindNode(s);
-			if (node == null)
-				return Enumerable.Empty<TrieNodeBase>();
-			return node.SubsumedNodes();
-		}
-
 		public IEnumerable<TValue> AllSubstringValues(String s)
 		{
 			int i_cur = 0;
 			while (i_cur < s.Length)
 			{
-				var node = _root;
+				var node = thisNode;
 				int i = i_cur;
 				while (i < s.Length)
 				{
@@ -446,9 +409,6 @@ namespace KVK.Core
 			}
 		}
 
-		/// <summary>
-		/// note: only returns nodes with non-null values
-		/// </summary>
 		void DepthFirstTraverse(Action<String,ITrieNode<TValue>> callback)
 		{
 			var rgch = new Char[100];
@@ -481,13 +441,13 @@ namespace KVK.Core
 				}
 			};
 
-			fn(_root);
+			fn(thisNode);
 		}
 
-		public ITrie<TNew> ToTrie<TNew>(Func<TValue, TNew> value_converter)
+		public ITrie<TNew> ToTrie<TNew>(Func<TValue, TNew> valueConverter)
 		{
 			var t = new Trie<TNew>();
-			DepthFirstTraverse((s,n)=> t.Add(s,value_converter(n.Value)));
+			DepthFirstTraverse((s,n)=> t.Add(s,valueConverter(n.Value)));
 			return t;
 		}
 	};

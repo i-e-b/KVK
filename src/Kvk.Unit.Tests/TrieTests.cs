@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using KVK.Core;
+﻿using KVK.Core;
 using NUnit.Framework;
 
 namespace Kvk.Unit.Tests
@@ -73,7 +71,6 @@ namespace Kvk.Unit.Tests
 			Assert.That(result, Is.EqualTo(expectedPath));
 		}
 
-
 		[Test]
 		[TestCase("poly",false)]
 		[TestCase("polyhedron", true)]
@@ -101,6 +98,47 @@ namespace Kvk.Unit.Tests
 			var other = subject.ToTrie(old => (old.ToString() == "one") ? ("X") : ("Y"));
 
 			Assert.That(other.AllSubstringValues("polyglot, polyhedron, polyglottal"), Is.EquivalentTo(new[] { "X", "Y", "X", "Y" }));
+		}
+
+		[Test]
+		public void Trie_still_works_after_being_compacted()
+		{
+			subject.Compact();
+			Assert.That(subject.AllSubstringValues("persaypolyglottalpolyhedronplay"), Is.EquivalentTo(new[] { "one", "three", "two" }));
+		}
+
+		[Test]
+		[TestCase("polyglot", true, "one", "polyglot")]
+		[TestCase("polyglottalism", false, "three", "polyglottal")]
+		public void Can_find_closest_matching_substring_nodes (string target, bool exact, object expectedValue, string expectedPath)
+		{
+			bool wasExact;
+			var result = subject.FindNodeOrLast(target, out wasExact);
+			var path = subject.GetKey(result);
+
+			Assert.That(result, Is.Not.Null, "result");
+			Assert.That(result.Value, Is.EqualTo(expectedValue), "value");
+			Assert.That(wasExact, Is.EqualTo(exact), "exact");
+			Assert.That(path, Is.EqualTo(expectedPath), "path");
+		}
+
+		[Test]
+		public void Finding_closest_substring_doesnt_match_non_leaf_paths ()
+		{
+			bool b;
+			var result = subject.FindNodeOrLast("polygon", out b);
+			
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public void Finding_closest_substring_matches_partial_paths ()
+		{
+			bool b;
+			var result = subject.FindNodeOrLast("poly", out b);
+			
+			Assert.That(result, Is.Not.Null);
+			Assert.That(b, Is.True);
 		}
     }
 }

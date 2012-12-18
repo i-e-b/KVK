@@ -37,14 +37,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\..\packages\ServiceStack.Text.3.9.32\lib\net35\ServiceStack.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DocumentDecompositionTests.cs" />
-    <Compile Include="PerformanceTests.cs" />
-    <Compile Include="TrieTests.cs" />
+    <Compile Include="DecomposeTests\DocumentDecompositionTests.cs" />
+    <Compile Include="DecomposeTests\TypeJunk.cs" />
+    <Compile Include="TrieTests\PerformanceTests.cs" />
+    <Compile Include="TrieTests\TrieTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

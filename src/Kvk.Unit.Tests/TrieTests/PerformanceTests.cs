@@ -3,7 +3,7 @@ using KVK.Core;
 using KVK.Core.Trie;
 using NUnit.Framework;
 
-namespace Kvk.Unit.Tests
+namespace Kvk.Unit.Tests.TrieTests
 {
 	[TestFixture, Explicit]
 	public class PerformanceTests

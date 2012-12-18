@@ -3,51 +3,54 @@ using System.Linq;
 using KVK.Core;
 using KVK.Core.Trie;
 
-class Program 
-{ 
-    // trie with payload of type <String> 
-    static readonly ITrie<String> value_trie = new Trie<String> 
-    { 
-        { "rabbit", "cute" }, 
-        { "giraffe", "tall" }, 
-        { "ape", "smart" }, 
-        { "hippo", "large" }, 
-    }; 
+namespace Host
+{
+	class Program 
+	{ 
+		// trie with payload of type <String> 
+		static readonly ITrie<String> value_trie = new Trie<String> 
+		{ 
+			{ "rabbit", "cute" }, 
+			{ "giraffe", "tall" }, 
+			{ "ape", "smart" }, 
+			{ "hippo", "large" }, 
+		}; 
  
-    // degenerate case of a trie without payload 
-    static readonly ITrie<bool> simple_trie = new Trie<bool> 
-    { 
-        { "rabbit", true }, 
-        { "giraffe", true }, 
-        { "ape", true }, 
-        { "hippo", true }, 
-    }; 
+		// degenerate case of a trie without payload 
+		static readonly ITrie<bool> simple_trie = new Trie<bool> 
+		{ 
+			{ "rabbit", true }, 
+			{ "giraffe", true }, 
+			{ "ape", true }, 
+			{ "hippo", true }, 
+		}; 
  
-    static void Main() 
-    { 
-        var s = "Once upon a time, a rabbit met an ape in the woods."; 
+		static void Main() 
+		{ 
+			var s = "Once upon a time, a rabbit met an ape in the woods."; 
  
-        // Retrieve payloads for words in the string. 
-        // 
-        // output: 
-        //      cute 
-        //      smart 
-        foreach (var word in value_trie.AllSubstringValues(s)) 
-                Console.WriteLine(word); 
+			// Retrieve payloads for words in the string. 
+			// 
+			// output: 
+			//      cute 
+			//      smart 
+			foreach (var word in value_trie.AllSubstringValues(s)) 
+				Console.WriteLine(word); 
  
-        // Simply test a string for any of the words in the trie. 
-        // Note that the Any() operator ensures that the input is no longer 
-        // traversed once a single result is found. 
-        // 
-        // output: 
-        //      True 
-        Console.WriteLine(simple_trie.AllSubstringValues(s).Any(e=>e)); 
+			// Simply test a string for any of the words in the trie. 
+			// Note that the Any() operator ensures that the input is no longer 
+			// traversed once a single result is found. 
+			// 
+			// output: 
+			//      True 
+			Console.WriteLine(simple_trie.AllSubstringValues(s).Any(e=>e)); 
  
-        s = "Four score and seven years ago."; 
-        // output: 
-        //      False 
-        Console.WriteLine(simple_trie.AllSubstringValues(s).Any(e => e)); 
+			s = "Four score and seven years ago."; 
+			// output: 
+			//      False 
+			Console.WriteLine(simple_trie.AllSubstringValues(s).Any(e => e)); 
 
-		Console.ReadKey();
-    } 
+			Console.ReadKey();
+		} 
+	}
 } 

@@ -46,6 +46,8 @@
     <Compile Include="Decomposer\IDecomposer.cs" />
     <Compile Include="Decomposer\ObjectDecomposer.cs" />
     <Compile Include="Decomposer\PathValue.cs" />
+    <Compile Include="PathValueKey\IPathValueKeyStore.cs" />
+    <Compile Include="PathValueKey\PathValueKeyStore.cs" />
     <Compile Include="Trie\ITrie.cs" />
     <Compile Include="Trie\ITrieNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

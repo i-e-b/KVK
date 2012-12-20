@@ -16,7 +16,7 @@ namespace Kvk.Unit.Tests.TrieTests
 		}
 
 		[Test][Description("Test bi-direction links in Trie to recover paths")]
-		public void querying_node_path ()
+		public void querying_node_path_100_000_times ()
 		{
 			ITrieNode<object> lastNode = null;
 			foreach (var word in doc.Split(' ', '\r', '\n'))
@@ -36,7 +36,7 @@ namespace Kvk.Unit.Tests.TrieTests
 		}
 
 		[Test][Description("Test bi-direction links in Trie to recover paths")]
-		public void querying_node_path_by_value ()
+		public void querying_node_path_by_value_100_000_times ()
 		{
 			foreach (var word in doc.Split(' ', '\r', '\n'))
 			{

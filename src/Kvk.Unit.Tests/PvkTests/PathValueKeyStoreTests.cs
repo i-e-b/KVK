@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using KVK.Core;
 using KVK.Core.PathValueKey;
 using NUnit.Framework;
 
-namespace Kvk.Unit.Tests
+namespace Kvk.Unit.Tests.PvkTests
 {
 	[TestFixture]
 	public class PathValueKeyStoreTests

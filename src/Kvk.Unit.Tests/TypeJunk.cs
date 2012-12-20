@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kvk.Unit.Tests.DecomposeTests
+namespace Kvk.Unit.Tests
 {
 	public class TypeJunk
 	{

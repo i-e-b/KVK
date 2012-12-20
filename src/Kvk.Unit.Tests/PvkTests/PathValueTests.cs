@@ -1,7 +1,7 @@
 ﻿using KVK.Core.Decomposer;
 using NUnit.Framework;
 
-namespace Kvk.Unit.Tests
+namespace Kvk.Unit.Tests.PvkTests
 {
 	[TestFixture]
 	public class PathValueTests

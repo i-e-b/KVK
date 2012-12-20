@@ -1,5 +1,4 @@
-﻿using KVK.Core;
-using KVK.Core.Trie;
+﻿using KVK.Core.Trie;
 using NUnit.Framework;
 
 namespace Kvk.Unit.Tests.TrieTests
@@ -36,6 +35,14 @@ namespace Kvk.Unit.Tests.TrieTests
 		public void Finding_a_node_based_on_a_non_existent_prefix_returns_null()
 		{
 			Assert.That(subject.FindNode("mono"), Is.Null);
+		}
+
+		[Test]
+		public void A_node_can_find_its_top_level_parent ()
+		{
+			var node = subject.FindNode("poly");
+
+			Assert.That(node.FindRoot(), Is.EqualTo(subject.Root()));
 		}
 
 		[Test]

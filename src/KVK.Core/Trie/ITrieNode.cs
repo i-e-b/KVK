@@ -2,7 +2,12 @@ using System.Collections.Generic;
 
 namespace KVK.Core.Trie
 {
-	public interface ITrieNode<T>
+	/// <summary>
+	/// Marker interface to make working with node types easier
+	/// </summary>
+	public interface ITrieNode { }
+
+	public interface ITrieNode<T> : ITrieNode
 	{
 		T Value { get; set; } 
 
@@ -16,6 +21,7 @@ namespace KVK.Core.Trie
 		void SetLeaf();
 		int ChildCount { get; }
 		bool ShouldOptimize { get; }
+		ITrieNode<T> FindRoot();
 
 		KeyValuePair<char, ITrieNode<T>>[] CharNodePairs();
 

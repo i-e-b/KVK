@@ -26,6 +26,29 @@ namespace Kvk.Unit.Tests
 			Assert.That(result.Date, Is.EqualTo(sample_document.Date));
 		}
 
+		[Test]
+		public void Can_recover_a_documents_data_from_index ()
+		{
+			subject.Store(sample_document);
+/*
+			var start = DateTime.Now;
+			for (int i = 0; i < 1e4; i++)
+			{
+				var x = subject.RecoverFromIndex_EXAMPLE_HACK(0).ToList();
+			}
+			var time = DateTime.Now - start;
+			Console.WriteLine(time);*/
+
+			var result = subject.RecoverFromIndex_EXAMPLE_HACK(0).ToList();
+
+			foreach (var pathValue in result)
+			{
+				Console.WriteLine(pathValue);
+			}
+
+			Assert.That(result.Count, Is.EqualTo(10));
+		}
+
 		#region var sample_document;
 		readonly TypeJunk sample_document = new TypeJunk{
 			Date = new DateTime(2012, 12, 18, 15, 52, 00),

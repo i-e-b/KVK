@@ -47,5 +47,8 @@ namespace KVK.Core.Trie
 		/// matching but rather to enable truncated tails still in the context of exact prefix matching.
 		/// </remarks>
 		ITrieNode<T> FindNodeOrLast(string key, out bool wasExactMatch);
+
+		/// <summary> Root level node for this tree. </summary>
+		ITrieNode<T> Root();
 	}
 }

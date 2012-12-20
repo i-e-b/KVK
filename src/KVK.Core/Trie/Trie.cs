@@ -11,7 +11,7 @@ namespace KVK.Core.Trie
 {
 	public class Trie<TValue> : IEnumerable<ITrieNode<TValue>>, ITrie<TValue>
 	{
-		abstract class TrieNodeBase:ITrieNode<TValue>
+		abstract class TrieNodeBase: ITrieNode<TValue>
 		{
 			public TValue Value { get; set; }
 
@@ -25,6 +25,14 @@ namespace KVK.Core.Trie
 			public abstract bool ShouldOptimize { get; }
 			public abstract KeyValuePair<char, ITrieNode<TValue>>[] CharNodePairs();
 			public abstract ITrieNode<TValue> AddChild(char c, ref int node_count);
+
+			public ITrieNode<TValue> FindRoot()
+			{
+				ITrieNode<TValue> n = this;
+				ITrieNode<TValue> p;
+				while ( ( p = n.Parent) != null) { n = p; }
+				return n;
+			}
 
 			/// <summary>
 			/// Includes current node value
@@ -280,9 +288,6 @@ namespace KVK.Core.Trie
 			return node.HasValue;
 		}
 
-		/// <summary>
-		/// Debug only; this is hideously inefficient
-		/// </summary>
 		public string GetKey(ITrieNode<TValue> seek)
 		{
 			var sofar = new StringBuilder();
@@ -327,10 +332,9 @@ namespace KVK.Core.Trie
 			return fn(thisNode) ? sofar.ToString() : null;
 		}
 
-		public ITrieNode<TValue> FindNode(String s_in)
+		public ITrieNode<TValue> FindNode(String targetKey)
 		{
-			var node = thisNode;
-			return s_in.Any(c => (node = node[c]) == null) ? null : node;
+			return InnerFindNode(targetKey);
 		}
 
 		public ITrieNode<TValue> FindNodeOrLast(String key, out bool wasExactMatch)
@@ -351,28 +355,42 @@ namespace KVK.Core.Trie
 			return node;
 		}
 
-		public TValue Find(string targetKey)
+		public ITrieNode<TValue> Root()
 		{
-			return UnsafeFind(targetKey);
+			return thisNode;
 		}
 
-		// TODO : write in safe code.
-		unsafe TValue UnsafeFind(String s_in)
+		public TValue Find(string targetKey)
+		{
+			var node = InnerFindNode(targetKey);
+			return (node == null) ? (default(TValue)) : (node.Value);
+		}
+
+// If you need safe-only code, swap this.
+#if SAFE
+		ITrieNode<TValue> InnerFindNode(string s_in)
 		{
 			var node = thisNode;
-			fixed (Char* pin_s = s_in)
+			return s_in.Any(c => (node = node[c]) == null) ? null : node;
+		}
+#else
+		unsafe ITrieNode<TValue> InnerFindNode(string s_in)
+		{
+			var node = thisNode;
+			fixed (char* pin_s = s_in)
 			{
-				Char* p = pin_s;
-				Char* p_end = p + s_in.Length;
+				char* p = pin_s;
+				char* p_end = p + s_in.Length;
 				while (p < p_end)
 				{
 					if ((node = node[*p]) == null)
-						return default(TValue);
+						return null;
 					p++;
 				}
-				return node.Value;
+				return node;
 			}
 		}
+#endif
 
 		public IEnumerable<TValue> FindAll(String s_in)
 		{

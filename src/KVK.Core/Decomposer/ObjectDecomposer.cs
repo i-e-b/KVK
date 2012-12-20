@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -8,7 +7,7 @@ namespace KVK.Core.Decomposer
 {
 	public class ObjectDecomposer:IDecomposer
 	{
-		IEnumerable<Tuple<string, string>> Decompose(object o, string root = "")
+		IEnumerable<PathValue> Decompose(object o, string root = "")
 		{
 			var props = o.GetType().GetProperties();
 			foreach (var property in props)
@@ -24,12 +23,12 @@ namespace KVK.Core.Decomposer
 					{
 						foreach (var subvalue in ((IEnumerable)value))
 						{
-							yield return new Tuple<string, string>(root + property.Name, TypeSerializer.SerializeToString(subvalue));
+							yield return new PathValue(root + property.Name, TypeSerializer.SerializeToString(subvalue));
 						}
 					}
 					else
 					{
-						yield return new Tuple<string, string>(root + property.Name, TypeSerializer.SerializeToString(value));
+						yield return new PathValue(root + property.Name, TypeSerializer.SerializeToString(value));
 					}
 				}
 				else
@@ -40,7 +39,7 @@ namespace KVK.Core.Decomposer
 			}
 		}
 
-		public IEnumerable<Tuple<string, string>> Decompose(object obj)
+		public IEnumerable<PathValue> Decompose(object obj)
 		{
 			return Decompose(obj, "");
 		}

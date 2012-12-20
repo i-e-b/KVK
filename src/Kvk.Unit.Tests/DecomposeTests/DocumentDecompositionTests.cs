@@ -21,9 +21,9 @@ namespace Kvk.Unit.Tests.DecomposeTests
 			var result = subject.Decompose(anonDoc);
 
 			Assert.That(result, Is.EquivalentTo(new []{
-				new Tuple<string,string>("Url","http://example.com"),
-				new Tuple<string,string>("Owner.Name","Jeff Smith"),
-				new Tuple<string,string>("Owner.Address","Apt 4A, E 68th Street, New York, NY")
+				new PathValue("Url","http://example.com"),
+				new PathValue("Owner.Name","Jeff Smith"),
+				new PathValue("Owner.Address","Apt 4A, E 68th Street, New York, NY")
 			}));
 		}
 
@@ -33,16 +33,16 @@ namespace Kvk.Unit.Tests.DecomposeTests
 			var result = subject.Decompose(complex);
 			
 			Assert.That(result, Is.EquivalentTo(new []{
-				new Tuple<string,string>("Date","2012-12-18T15:52:00Z"),
-				new Tuple<string,string>("Name","Jeff"),
-				new Tuple<string,string>("IsOK","True"),
-				new Tuple<string,string>("Owner.Name","Jeff Smith"),
-				new Tuple<string,string>("Owner.Address","Apt 4A"),
-				new Tuple<string,string>("Owner.Address","E 68th Street"),
-				new Tuple<string,string>("Owner.Address","New York"),
-				new Tuple<string,string>("Owner.Address","NY"),
-				new Tuple<string,string>("Owner.Notes.Note","Hello"),
-				new Tuple<string,string>("Owner.Notes.Note","World")
+				new PathValue("Date","2012-12-18T15:52:00Z"),
+				new PathValue("Name","Jeff"),
+				new PathValue("IsOK","True"),
+				new PathValue("Owner.Name","Jeff Smith"),
+				new PathValue("Owner.Address","Apt 4A"),
+				new PathValue("Owner.Address","E 68th Street"),
+				new PathValue("Owner.Address","New York"),
+				new PathValue("Owner.Address","NY"),
+				new PathValue("Owner.Notes.Note","Hello"),
+				new PathValue("Owner.Notes.Note","World")
 			}));
 		}
 

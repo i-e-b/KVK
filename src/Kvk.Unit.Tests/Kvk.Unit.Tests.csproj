@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="DecomposeTests\DocumentDecompositionTests.cs" />
     <Compile Include="DecomposeTests\TypeJunk.cs" />
+    <Compile Include="PathValueTests.cs" />
     <Compile Include="TrieTests\PerformanceTests.cs" />
     <Compile Include="TrieTests\TrieTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

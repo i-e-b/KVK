@@ -3,6 +3,11 @@ KVK
 
 Experiments in relational document datastores. Key-Value-Key: Reinventing the wheel
 
+Todo
+----
+* Use JSON as the interface, decompose arrays directly.
+* Re-compose to JSON
+
 Schema-free data store as a set of Key-Value stores
 ===================================================
 

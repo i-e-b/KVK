@@ -8,8 +8,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5DD82997-7018-4170-9EBA-EC817B7D885E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3FC58151-65FE-4FF7-BCD3-E8AB2064CAB3}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kvk.Unit.Tests", "src\Kvk.Unit.Tests\Kvk.Unit.Tests.csproj", "{67394A7F-4E1C-49F1-B7B4-81D5BA1D0B30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{750E9FF7-CF87-43F6-8F40-398758A12987}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

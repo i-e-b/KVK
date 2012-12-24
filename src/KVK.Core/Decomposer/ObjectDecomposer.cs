@@ -5,9 +5,9 @@ using ServiceStack.Text;
 
 namespace KVK.Core.Decomposer
 {
-	public class ObjectDecomposer:IDecomposer
+	public class ObjectDecomposer:IDecomposer, IPathComposer
 	{
-		IEnumerable<PathValue> Decompose(object o, string root = "")
+		IEnumerable<PathValue> Decompose(object o, string root)
 		{
 			var props = o.GetType().GetProperties();
 			foreach (var property in props)
@@ -43,5 +43,15 @@ namespace KVK.Core.Decomposer
 		{
 			return Decompose(obj, "");
 		}
+
+		public T Compose<T>(IEnumerable<PathValue> pathValues)
+		{
+			return default(T);
+		}
+	}
+
+	public interface IPathComposer
+	{
+		T Compose<T>(IEnumerable<PathValue> pathValues);
 	}
 }

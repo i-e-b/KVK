@@ -70,6 +70,5 @@ namespace Kvk.Unit.Tests.PvkTests
 			
 			Assert.That(result, Is.EquivalentTo(new[] {key2}));
 		}
-
 	}
 }

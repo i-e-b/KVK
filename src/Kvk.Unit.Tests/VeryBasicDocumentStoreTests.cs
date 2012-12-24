@@ -34,12 +34,12 @@ namespace Kvk.Unit.Tests
 			var start = DateTime.Now;
 			for (int i = 0; i < 1e4; i++)
 			{
-				var x = subject.RecoverFromIndex_EXAMPLE_HACK(0).ToList();
+				var x = subject.RecoverFromIndex(0).ToList();
 			}
 			var time = DateTime.Now - start;
 			Console.WriteLine(time);*/
 
-			var result = subject.RecoverFromIndex_EXAMPLE_HACK(0).ToList();
+			var result = subject.RecoverFromIndex(0).ToList();
 
 			foreach (var pathValue in result)
 			{

@@ -44,7 +44,7 @@ namespace KVK.Core
 				.Select(result => originals[result]);
 		}
 
-		public IEnumerable<PathValue> RecoverFromIndex_EXAMPLE_HACK(int i)
+		public IEnumerable<PathValue> RecoverFromIndex(int i)
 		{
 			return index.Recover(i);
 		}

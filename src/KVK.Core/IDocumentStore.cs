@@ -9,6 +9,6 @@ namespace KVK.Core
 		IEnumerable<object> FindAll(string path, string value);
 
 		/// <summary> This is a hack to demonstrate the recovery idea </summary>
-		IEnumerable<PathValue> RecoverFromIndex_EXAMPLE_HACK(int i);
+		IEnumerable<PathValue> RecoverFromIndex(int i);
 	}
 }

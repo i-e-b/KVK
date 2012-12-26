@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using KVK.Core.Decomposer;
+using KVK.Core.Json;
 using KVK.Core.PathValueKey;
+using ServiceStack.Text;
 
 namespace KVK.Core
 {
@@ -26,7 +28,7 @@ namespace KVK.Core
 
 		public DocumentStore()
 		{
-			decomposer = new ObjectDecomposer();
+			decomposer = new JsonObjectDecomposer();
 			index = new PathValueKeyStore<int>();
 			originals = new List<object>();
 		}
@@ -51,8 +53,8 @@ namespace KVK.Core
 
 		void IndexDocumentWithKey(object document, int idx)
 		{
-			var pathValues = decomposer.Decompose(document);
-
+			var pathValues = decomposer.Decompose(new JsonParser(document.ToJson(),false).Decode());
+			
 			foreach (var pathValue in pathValues)
 			{
 				index.Add(pathValue.Path, pathValue.Value, idx);

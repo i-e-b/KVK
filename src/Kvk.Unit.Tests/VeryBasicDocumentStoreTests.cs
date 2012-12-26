@@ -2,6 +2,7 @@
 using System.Linq;
 using KVK.Core;
 using NUnit.Framework;
+using ServiceStack.Text;
 
 namespace Kvk.Unit.Tests
 {
@@ -14,6 +15,7 @@ namespace Kvk.Unit.Tests
 		public void a_document_store ()
 		{
 			subject = new DocumentStore();
+			Console.WriteLine(sample_document.Dump());
 		}
 
 		[Test]
@@ -30,14 +32,6 @@ namespace Kvk.Unit.Tests
 		public void Can_recover_a_documents_data_from_index ()
 		{
 			subject.Store(sample_document);
-/*
-			var start = DateTime.Now;
-			for (int i = 0; i < 1e4; i++)
-			{
-				var x = subject.RecoverFromIndex(0).ToList();
-			}
-			var time = DateTime.Now - start;
-			Console.WriteLine(time);*/
 
 			var result = subject.RecoverFromIndex(0).ToList();
 

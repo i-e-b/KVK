@@ -45,10 +45,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Decomposer\IDecomposer.cs" />
-    <Compile Include="Decomposer\ObjectDecomposer.cs" />
+    <Compile Include="Decomposer\JsonObjectDecomposer.cs" />
     <Compile Include="Decomposer\PathValue.cs" />
     <Compile Include="DocumentStore.cs" />
     <Compile Include="IDocumentStore.cs" />
+    <Compile Include="Json\JsonParser.cs" />
     <Compile Include="PathValueKey\IPathValueKeyStore.cs" />
     <Compile Include="PathValueKey\PathValueKeyStore.cs" />
     <Compile Include="Trie\ITrie.cs" />

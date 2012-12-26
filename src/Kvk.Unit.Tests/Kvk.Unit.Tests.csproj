@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DecomposeTests\DocumentDecompositionTests.cs" />
+    <Compile Include="JsonTests\ParserTests.cs" />
     <Compile Include="TypeJunk.cs" />
     <Compile Include="PvkTests\PathValueKeyStoreTests.cs" />
     <Compile Include="PvkTests\PathValueTests.cs" />

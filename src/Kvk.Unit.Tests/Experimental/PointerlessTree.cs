@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -17,8 +18,8 @@ namespace Kvk.Unit.Tests.Experimental
 			Console.WriteLine("Pointer: "+IntPtr.Size*8);
 			Console.WriteLine("Char: "+sizeof(char)*8);
 
-			Console.WriteLine("Size of DTT: "+(s_ulong + (64*s_char)));
-			Console.WriteLine("Size of half-full pointer tree: "+((32*pointer)+(32*s_char)));
+			Console.WriteLine("Size of TernaryTreePage: "+(s_ulong + (64*s_char)));
+			Console.WriteLine("Size of quarter-full pointer tree: "+((16*pointer)+(16*s_char)));
 
 			
 			Assert.Pass();
@@ -27,24 +28,26 @@ namespace Kvk.Unit.Tests.Experimental
 		[Test]
 		public void marking_population()
 		{
-			// a tree with up to 64 nodes can be represented by:
-			//   ulong population = 0x0000000000000000; 
-			//   var values = new char[64];
-			// the 'population' follows potential nodes left->right, top->bottom.
-			// a value of '0' is no node (like a null pointer). A value of '1' is
-			// a node with a value. Any no-node has no potential children, and
-			// isn't counted in the population anymore.
-			// all values are in population order and are stored densely.
-			// (dense storage may change).
-
+			//"as", "at", "cup", "cute", "he", "i" and "us"
 			var subject = new TernaryTreePage('c');
 			subject.Add("cute");
 			subject.Add("cat");
 			subject.Add("cup");
+			subject.Add("he");
+			subject.Add("us");
+			subject.Add("i");
+			subject.Add("as");
 
-			Console.WriteLine("rLCR-----------------------------------------------------------|");
-			Console.WriteLine(Convert.ToString((long)subject.Population,2).Reverse().ToArray());
+			Console.WriteLine("0 1 ....2....             3");
+			Console.WriteLine("rLCR--------.--------------------------._______________________|");
+			Console.WriteLine(BinaryStringLeftToRight(subject));
 			Console.WriteLine(subject.Values);
+		}
+
+		static char[] BinaryStringLeftToRight(TernaryTreePage subject)
+		{
+			const string padding = "0000000000000000000000000000000000000000000000000000000000000000";
+			return Convert.ToString((long)subject.Population,2).Reverse().Concat(padding).Take(64).ToArray();
 		}
 
 		[Test]
@@ -106,10 +109,7 @@ namespace Kvk.Unit.Tests.Experimental
 			{
 				var ch = s[spos];
 				if (ch < current)
-				{// insert left
-					// don't advance spos
-					// if no left, add pop & value
-					// set current position to left node pos
+				{
 					var next = LeftOf(idx);
 					if (!IsSet(next)) Values[next] = ch;
 					Set(next);
@@ -117,10 +117,7 @@ namespace Kvk.Unit.Tests.Experimental
 					current=Values[idx];
 				}
 				else if (ch > current)
-				{// insert right
-					// don't advance i
-					// if no right, add pop & value
-					// set current position to left node pos
+				{
 					var next = RightOf(idx);
 					if (!IsSet(next)) Values[next] = ch;
 					Set(next);
@@ -128,10 +125,8 @@ namespace Kvk.Unit.Tests.Experimental
 					current=Values[idx];
 				}
 				else
-				{// insert centre
+				{
 					spos++;
-					// if we're at the end of the string, exit
-					// otherwise add a centre node
 					if (spos == s.Length) return; // would also add a terminus mark here
 
 					ch = s[spos];

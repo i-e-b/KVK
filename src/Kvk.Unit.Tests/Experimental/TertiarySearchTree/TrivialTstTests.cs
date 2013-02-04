@@ -39,7 +39,6 @@ namespace Kvk.Unit.Tests.TertiarySearchTree
 			return _terminated;
 		}
 
-
 		public TstNode Search(String word)
 		{
 			TstNode node = this;
@@ -64,7 +63,6 @@ namespace Kvk.Unit.Tests.TertiarySearchTree
 			//not found
 			return null;
 		}
-
 
 		public TstNode Insert(String word)
 		{

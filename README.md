@@ -7,6 +7,8 @@ Todo
 ----
 * Use JSON as the interface, decompose arrays directly.
 * Re-compose to JSON
+* Improve the pointerless Ternary Search Tree to cope with arbitrary depth
+* Try mem-mapping pTST to files
 
 Schema-free data store as a set of Key-Value stores
 ===================================================

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Experiments.Unit.Tests.TertiarySearchTree;
 using NUnit.Framework;
 using BitArray = Ewah.EwahCompressedBitArray;
@@ -42,10 +41,13 @@ namespace Experiments.Unit.Tests
 			subject.Add("as");
 			subject.Add("me?");
 			subject.Add("so what");
+			subject.Add("Right, here's a properly long string of the sort you really would see in a database");
+			subject.Add("Right, here's a properly long string of the sort you really would see in a data store");
 
 			Console.WriteLine(helpers.BinaryStringLeftToRight(subject.Population));
 
-			Console.WriteLine(subject.Values);
+			Console.WriteLine(subject.addedCharacters+" characters added");
+			subject.Values.Print();
 		}
 		[Test]
 		public void ewah_array_ternary_tree ()
@@ -59,6 +61,7 @@ namespace Experiments.Unit.Tests
 	{
 		public BitArray Population = new BitArray();
 		public Map<char> Values = new Map<char>();
+		public int addedCharacters = 0;
 		
 		public TernaryTreePage_ewah(char rootNode)
 		{
@@ -67,32 +70,32 @@ namespace Experiments.Unit.Tests
 			Set(0);
 		}
 
-		bool IsSet(int i) {
+		bool IsSet(long i) {
 			return Population.Intersects(SetAt(i));
 		}
-		void Set(int i) { 
+		void Set(long i) { 
 			if (!Population.Set(i))
 			{
 				Population = Population.Or(SetAt(i));
 			}
 		}
 
-		BitArray SetAt(int i)
+		BitArray SetAt(long i)
 		{
 			var x = new BitArray();
 			x.Set(i);
 			return x;
 		}
 
-		public static int LeftOf(int i)
+		public static long LeftOf(long i)
 		{
 			return (i * 3) + 1;
 		}
-		public static int Below(int i)
+		public static long Below(long i)
 		{
 			return (i * 3) + 2;
 		}
-		public static int RightOf(int i)
+		public static long RightOf(long i)
 		{
 			return (i * 3) + 3;
 		}
@@ -100,7 +103,7 @@ namespace Experiments.Unit.Tests
 		public void Add(string s)
 		{
 			char current = Values[0];
-			int idx = 0;
+			long idx = 0;
 			int spos = 0;
 			while (spos < s.Length)
 			{
@@ -123,6 +126,7 @@ namespace Experiments.Unit.Tests
 				}
 				else
 				{
+					addedCharacters++;
 					spos++;
 					if (spos == s.Length) return; // would also add a terminus mark here
 
@@ -158,15 +162,14 @@ namespace Experiments.Unit.Tests
 				else _d.Add(idx, value);
 			}
 		}
-		public override string ToString()
+		public void Print()
 		{
 			long m = _d.Keys.Max();
-			var sb = new StringBuilder((int) m);
-			for (int i = 0; i < m; i++)
+			Console.WriteLine("Contains "+_d.Keys.Count+" items with max index "+m);
+			foreach (var value in _d.Values)
 			{
-				sb.Append(this[i]);
+				Console.Write(value);
 			}
-			return sb.ToString();
 		}
 	}
 }

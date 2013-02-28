@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using Experiments.Unit.Tests.TertiarySearchTree;
 using NUnit.Framework;
+using BitArray = Ewah.EwahCompressedBitArray;
 
-namespace Kvk.Unit.Tests.Experimental
+namespace Experiments.Unit.Tests
 {
 	[TestFixture]
-	public class PointerlessTree
-	{
+    public class Experiments
+    {
 		[Test]
 		public void sizes()
 		{
@@ -29,7 +32,7 @@ namespace Kvk.Unit.Tests.Experimental
 		public void marking_population()
 		{
 			//"as", "at", "cup", "cute", "he", "i" and "us"
-			var subject = new TernaryTreePage('c');
+			var subject = new TernaryTreePage_ewah('c');
 			subject.Add("cute");
 			subject.Add("cat");
 			subject.Add("cup");
@@ -37,55 +40,49 @@ namespace Kvk.Unit.Tests.Experimental
 			subject.Add("us");
 			subject.Add("i");
 			subject.Add("as");
+			subject.Add("me?");
+			subject.Add("so what");
 
-			Console.WriteLine("0 1 ....2....             3");
-			Console.WriteLine("rLCR--------.--------------------------._______________________|");
-			Console.WriteLine(BinaryStringLeftToRight(subject));
+			Console.WriteLine(helpers.BinaryStringLeftToRight(subject.Population));
+
 			Console.WriteLine(subject.Values);
 		}
-
-		static char[] BinaryStringLeftToRight(TernaryTreePage subject)
-		{
-			const string padding = "0000000000000000000000000000000000000000000000000000000000000000";
-			return Convert.ToString((long)subject.Population,2).Reverse().Concat(padding).Take(64).ToArray();
-		}
-
 		[Test]
-		[TestCase(0,1)]
-		[TestCase(1,4)]
-		[TestCase(2,7)]
-		[TestCase(3,10)]
-		[TestCase(4,13)]
-		[TestCase(5,16)]
-		[TestCase(6,19)]
-		[TestCase(7,22)]
-		[TestCase(8,25)]
-		[TestCase(9,28)]
-		[TestCase(10,31)]
-		[TestCase(11,34)]
-		[TestCase(12,37)]
-		public void ranking(int index, int expected)
+		public void ewah_array_ternary_tree ()
 		{
-			Assert.That(TernaryTreePage.LeftOf(index), Is.EqualTo(expected));
-			Assert.That(TernaryTreePage.RightOf(index), Is.EqualTo(expected+2));
-		}
-	}
 
-	class TernaryTreePage // storing chars.
+		}
+    }
+
+	
+	class TernaryTreePage_ewah // storing chars.
 	{
-		public ulong Population = 0x0000000000000000; 
-		public char[] Values = new char[64];
+		public BitArray Population = new BitArray();
+		public Map<char> Values = new Map<char>();
 		
-		public TernaryTreePage(char rootNode)
+		public TernaryTreePage_ewah(char rootNode)
 		{
 			// for simplicity, root is always populated
 			Values[0] = rootNode;
-			Population |= 1;
+			Set(0);
 		}
 
-		bool IsSet(int i) { return (Population & (1ul << i)) != 0; }
-		void Set(int i) { Population |= 1ul << i; }
-		//void Unset(int i) { Population ^= (Population & (1ul << i)); }
+		bool IsSet(int i) {
+			return Population.Intersects(SetAt(i));
+		}
+		void Set(int i) { 
+			if (!Population.Set(i))
+			{
+				Population = Population.Or(SetAt(i));
+			}
+		}
+
+		BitArray SetAt(int i)
+		{
+			var x = new BitArray();
+			x.Set(i);
+			return x;
+		}
 
 		public static int LeftOf(int i)
 		{
@@ -137,6 +134,39 @@ namespace Kvk.Unit.Tests.Experimental
 					current=Values[idx];
 				}
 			}
+		}
+	}
+
+	class Map<TV>
+	{
+		readonly Dictionary<long, TV> _d;
+
+		public Map()
+		{
+			_d = new Dictionary<long, TV>();
+		}
+		public TV this[long idx]
+		{
+			get
+			{
+				if (_d.ContainsKey(idx)) return _d[idx];
+				return default(TV);
+			}
+			set
+			{
+				if (_d.ContainsKey(idx)) _d[idx] = value;
+				else _d.Add(idx, value);
+			}
+		}
+		public override string ToString()
+		{
+			long m = _d.Keys.Max();
+			var sb = new StringBuilder((int) m);
+			for (int i = 0; i < m; i++)
+			{
+				sb.Append(this[i]);
+			}
+			return sb.ToString();
 		}
 	}
 }

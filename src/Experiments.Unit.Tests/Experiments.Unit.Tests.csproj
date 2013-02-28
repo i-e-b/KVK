@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{67394A7F-4E1C-49F1-B7B4-81D5BA1D0B30}</ProjectGuid>
+    <ProjectGuid>{4DAAEBB1-952F-4EED-BC12-FD8481784DA1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kvk.Unit.Tests</RootNamespace>
-    <AssemblyName>Kvk.Unit.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>Experiments.Unit.Tests</RootNamespace>
+    <AssemblyName>Experiments.Unit.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -30,38 +30,30 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NSubstitute">
-      <HintPath>..\..\packages\NSubstitute.1.4.3.0\lib\NET40\NSubstitute.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Text">
-      <HintPath>..\..\packages\ServiceStack.Text.3.9.32\lib\net35\ServiceStack.Text.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DecomposeTests\DocumentDecompositionTests.cs" />
-    <Compile Include="JsonTests\ParserTests.cs" />
-    <Compile Include="TypeJunk.cs" />
-    <Compile Include="PvkTests\PathValueKeyStoreTests.cs" />
-    <Compile Include="PvkTests\PathValueTests.cs" />
-    <Compile Include="TrieTests\PerformanceTests.cs" />
-    <Compile Include="TrieTests\TrieTests.cs" />
+    <Compile Include="TertiarySearchTree\equalityArrays\Experiments.cs" />
+    <Compile Include="TertiarySearchTree\first_sketch\TernaryTreePage.cs" />
+    <Compile Include="TertiarySearchTree\first_sketch\PointerlessTreeTests_1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VeryBasicDocumentStoreTests.cs" />
+    <Compile Include="TertiarySearchTree\first_sketch\TrivialTstTests.cs" />
+    <Compile Include="TertiarySearchTree\helpers.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\KVK.Core\KVK.Core.csproj">
-      <Project>{302D67B0-1127-408F-B884-911F245CE425}</Project>
-      <Name>KVK.Core</Name>
+    <ProjectReference Include="..\..\modules\ewah\EWAH\EWAH.csproj">
+      <Project>{13fe7ccd-a03a-4b97-a89c-6cd301624997}</Project>
+      <Name>EWAH</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
